@@ -30,281 +30,281 @@ Server Response Commands Reference
 ------------------------------------
 
 * 'Balance'
-..* 'Available'
-..* 'InPlay'
-..* 'Total'
+ - 'Available'
+ - 'InPlay'
+ - 'Total'
 
 
 * 'RingGameLobby'
-..* 'Clear'
-..* 'ID[1..N]
-...* 'Seats[N]'
-...* 'Type[N]'
-...* 'StakesHi[N]'
-...* 'StakesLo[N]'
-...* 'Players[N]'
-...* 'Waiting[N]'
-...* 'Game[N]'
-...* 'BuyinMax[N]'
-...* 'BuyinMin[N]'
+ - 'Clear'
+ - 'ID[1..N]
+  - 'Seats[N]'
+  - 'Type[N]'
+  - 'StakesHi[N]'
+  - 'StakesLo[N]'
+  - 'Players[N]'
+  - 'Waiting[N]'
+  - 'Game[N]'
+  - 'BuyinMax[N]'
+  - 'BuyinMin[N]'
 
 
 * 'TournamentLobby'
-..* 'Clear'
-..* 'ID[1..N]
-...* 'Type[N]'
-...* 'Buyin[N]'
-...* 'EntryFee[N]'
-...* 'Rebuy[N]'
-...* 'TS[N]'
-...* 'Reg[N]'
-...* 'Max[N]'
-...* 'Starts[N]'
-...* 'StartMin[N]'
-...* 'StartTime[N]'
-...* 'Tables[N]'
-...* 'Password[N]'
+ - 'Clear'
+ - 'ID[1..N]
+  - 'Type[N]'
+  - 'Buyin[N]'
+  - 'EntryFee[N]'
+  - 'Rebuy[N]'
+  - 'TS[N]'
+  - 'Reg[N]'
+  - 'Max[N]'
+  - 'Starts[N]'
+  - 'StartMin[N]'
+  - 'StartTime[N]'
+  - 'Tables[N]'
+  - 'Password[N]'
 
 
 * 'Login'
-..* 'Status'
+ - 'Status'
 
 
 * 'Logins'
-..* 'Clear'
-..* 'LI[1..N]'
-...* 'LI[N]' = username|title|location|longTime
+ - 'Clear'
+ - 'LI[1..N]'
+  - 'LI[N]' = username|title|location|longTime
 
 
 * 'LobbyChat'
-..* 'Player'
-..* 'Text'
-..* 'Color'
+ - 'Player'
+ - 'Text'
+ - 'Color'
 
 
 * 'PlayerInfo'
-..* 'Table'
-..* 'Type'
-..* 'Time'
-..* 'Count'
-..* 'Player[1..N]'
-...* 'Rank[N]'
-...* 'Chips[N]'
-...* 'NoShow[N]'
+ - 'Table'
+ - 'Type'
+ - 'Time'
+ - 'Count'
+ - 'Player[1..N]'
+  - 'Rank[N]'
+  - 'Chips[N]'
+  - 'NoShow[N]'
 
 
 * 'Chat'
-..* 'Table'
-..* 'Player'
-..* 'Text'
+ - 'Table'
+ - 'Player'
+ - 'Text'
 
 
 * 'History'
-..* 'Table'
-..* 'Hand'
+ - 'Table'
+ - 'Hand'
 
 
 * 'Cards'
-..* 'Table'
-..* 'Seat'
-..* 'Card1'
-..* 'Card2'
-..* 'Card3'
-..* 'Card4'
+ - 'Table'
+ - 'Seat'
+ - 'Card1'
+ - 'Card2'
+ - 'Card3'
+ - 'Card4'
 
 
 * 'Table':
-..* 'Table'
-..* 'Type'
-..* 'Seats'
-..* 'Dealer'
-..* 'Total'
-..* 'Password'
-..* 'Turn'
-..* 'Player[1..N]'
-...* 'Location[N]'
-...* 'Title[N]'
-...* 'Time[N]'
-...* 'Chips[N]'
-...* 'Bet[N]'
-...* 'Avatar[N]'
-...* 'Level[N]'
-...* 'Custom[N]'
-...* 'RealName[N]'
-...* 'Gender[N]'
-...* 'Action[N]'
-...* 'Card1[N]'
-...* 'Card2[N]'
-...* 'Card3[N]'
-...* 'Card4[N]'
+ - 'Table'
+ - 'Type'
+ - 'Seats'
+ - 'Dealer'
+ - 'Total'
+ - 'Password'
+ - 'Turn'
+ - 'Player[1..N]'
+  - 'Location[N]'
+  - 'Title[N]'
+  - 'Time[N]'
+  - 'Chips[N]'
+  - 'Bet[N]'
+  - 'Avatar[N]'
+  - 'Level[N]'
+  - 'Custom[N]'
+  - 'RealName[N]'
+  - 'Gender[N]'
+  - 'Action[N]'
+  - 'Card1[N]'
+  - 'Card2[N]'
+  - 'Card3[N]'
+  - 'Card4[N]'
 
 
 * 'HotSeat':
-..* 'Seat'
+ - 'Seat'
 
 
 * 'TimeLeft':
-..* 'Seat'
-..* 'Time'
+ - 'Seat'
+ - 'Time'
 
 
 * 'ActionChips':
-..* '$responseArr['Table']);
-..* 'Seat'
-..* 'Action1'
-..* 'Action2'
-..* 'Chips']);
+ - '$responseArr['Table']);
+ - 'Seat'
+ - 'Action1'
+ - 'Action2'
+ - 'Chips']);
 
 
 * 'Bet':
-..* 'Table'
-..* 'Seat'
-..* 'Bet'
+ - 'Table'
+ - 'Seat'
+ - 'Bet'
 
 
 * 'BetCollection':
-..* 'Seat[1-9]'
+ - 'Seat[1-9]'
 
 
 * 'Total':
-..* 'Table'
-..* 'Total'
+ - 'Table'
+ - 'Total'
 
 
 * 'Buttons':
-..* 'Table'
-..* 'Button1'
-..* 'Button2'
-..* 'Button3'
-..* 'Button4'
-..* 'MinRaise'
-..* 'MaxRaise'
-..* 'Type'
-..* 'Call'
+ - 'Table'
+ - 'Button1'
+ - 'Button2'
+ - 'Button3'
+ - 'Button4'
+ - 'MinRaise'
+ - 'MaxRaise'
+ - 'Type'
+ - 'Call'
 
 
 * 'Flop':
-..* 'Table'
-..* 'Board1' - Use cardNumToText() to get the textual representation
-..* 'Board2' - Use cardNumToText() to get the textual representation
-..* 'Board3' - Use cardNumToText() to get the textual representation
+ - 'Table'
+ - 'Board1' - Use cardNumToText() to get the textual representation
+ - 'Board2' - Use cardNumToText() to get the textual representation
+ - 'Board3' - Use cardNumToText() to get the textual representation
 
 
 * 'Turn'
-..* 'Table'
-..* 'Board4' - Use cardNumToText() to get the textual representation
+ - 'Table'
+ - 'Board4' - Use cardNumToText() to get the textual representation
 
 
 * 'River'
-..* 'Table'
-..* 'Board5' - Use cardNumToText() to get the textual representation
+ - 'Table'
+ - 'Board5' - Use cardNumToText() to get the textual representation
 
 
 * 'Message'
-..* 'Text'
+ - 'Text'
 
 
 * 'RegisterRequest'
-..* 'Table'
-..* 'BuyIn'
-..* 'Password'
+ - 'Table'
+ - 'BuyIn'
+ - 'Password'
 
 
 * 'SuspendChat'
-..* 'Table'
-..* 'Type'
-..* 'Suspend'
+ - 'Table'
+ - 'Type'
+ - 'Suspend'
 
 
 * 'PotAward'
-..* 'Table'
-..* 'Type'
-..* 'Pot'
-..* 'Seat1-9'
+ - 'Table'
+ - 'Type'
+ - 'Pot'
+ - 'Seat1-9'
 
 
 * 'Deal'
-..* 'Table'
-..* 'Type'
-..* 'Seats'
+ - 'Table'
+ - 'Type'
+ - 'Seats'
 
 
 * 'Dealer'
-..* 'Table'
-..* 'Dealer'
+ - 'Table'
+ - 'Dealer'
 
 
 * 'TableInfo'
-..* 'Type'
-..* 'Lines'
-..* 'Desc'
-..* 'Line1'
-..* 'Line2'
+ - 'Type'
+ - 'Lines'
+ - 'Desc'
+ - 'Line1'
+ - 'Line2'
 
 
 * 'TableHeader'
-..* 'Table'
-..* 'Text'
+ - 'Table'
+ - 'Text'
 
 
 * 'ECards' - ECards are encrypted, use the decryptCards() function along with the salt and session key to decrypt them
-..* 'Card1'
-..* 'Card2'
-..* 'Card3'
-..* 'Card4'
-..* 'Salt'
+ - 'Card1'
+ - 'Card2'
+ - 'Card3'
+ - 'Card4'
+ - 'Salt'
 
 
 * 'NextMove'
-..* 'Table'
-..* 'Call'
+ - 'Table'
+ - 'Call'
 
 
 * 'FoldCards'
-..* 'Table'
-..* 'Ghost'
+ - 'Table'
+ - 'Ghost'
 
 
 * 'Clear'
-..* 'Table'
+ - 'Table'
 
 
 * 'SitOut'
-..* 'Table'
+ - 'Table'
 
 
 * 'OpenTable':
- ..* 'Table'
- ..* 'Beep'
- ..* 'Omaha'
+  - 'Table'
+  - 'Beep'
+  - 'Omaha'
 
 
 * 'TableMessage':
-..* 'Table'
-..* 'Text'
+ - 'Table'
+ - 'Text'
 
 
 * 'HandHelper':
-..* 'Table'
-..* 'Text'
+ - 'Table'
+ - 'Text'
 
 
 * 'Time':
-..* 'Table'
-..* 'Type'
-..* 'Button1'
-..* 'Button2'
-..* 'Button3'
-..* 'Call'
-..* 'MinRaise'
-..* 'MaxRaise'
-..* 'IncRaise'
-..* 'Bank'
+ - 'Table'
+ - 'Type'
+ - 'Button1'
+ - 'Button2'
+ - 'Button3'
+ - 'Call'
+ - 'MinRaise'
+ - 'MaxRaise'
+ - 'IncRaise'
+ - 'Bank'
 
 
 * 'PlayerStats':
-..* 'Table'
-..* 'Line[1..N]'
+ - 'Table'
+ - 'Line[1..N]'
 
 
 * 'Waiting'
