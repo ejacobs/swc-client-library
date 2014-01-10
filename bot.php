@@ -1,7 +1,6 @@
 <?php
 
 include('config.php');
-include('functions.php');
 include('Swc.php');
 
 $client = new Swc(SWC_USERNAME, SWC_PASSWORD);
