@@ -103,18 +103,18 @@ class Swc {
     }
 
     // Register for a tourney
-    public function sendTourneyRegistration($client, $tableName) {
+    public function sendTourneyRegistration($tableName) {
         $this->_sendPacket('Response=RegisterRequest&Table=' . rawurlencode($tableName));
-        $client->_processInput();
+        $this->_processInput();
         $this->_sendPacket('Response=Register&Seat=0&Type=T&Table=' . rawurlencode($tableName));
-        $client->_processInput();
+        $this->_processInput();
         return true;
     }
 
     // Tell the server which button we pressed
-    public function sendDecision($table, $type, $decision) {
+    public function sendDecision($type, $tableName, $decision) {
         $button = ucfirst(strtolower($decision['action']));
-        $this->_sendPacket('Response=Button&Amount='. $decision['amount'] .'&Type='. $type .'&Button='. $button .'&Table=' . $table);
+        $this->_sendPacket('Response=Button&Amount='. $decision['amount'] .'&Type='. $type .'&Button='. $button .'&Table=' . $tableName);
     }
 
 
