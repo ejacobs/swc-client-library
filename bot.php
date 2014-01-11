@@ -21,6 +21,7 @@ while ($response = $client->play()) {
         }
 
     }
+    usleep(SLEEP_MILLISECONDS);
 }
 
 

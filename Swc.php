@@ -73,7 +73,6 @@ class Swc {
     public function play() {
         if(!$this->_socket) return false;
         else return $this->_processInput();
-        usleep(SLEEP_MILLISECONDS);
     }
 
     // Request our chip and kirll balance
@@ -151,10 +150,10 @@ class Swc {
         if ($var9 < 0 or $var9 > 53) $var9 = 0;
 
         $cardList = array();
-        if ($var6 != 0)  $cardList[] = cardNumToText($var6);
-        if ($var7 != 0)  $cardList[] = cardNumToText($var7);
-        if ($var8 != 0)  $cardList[] = cardNumToText($var8);
-        if ($var9 != 0)  $cardList[] = cardNumToText($var9);
+        if ($var6 != 0)  $cardList[] = $this->cardNumToText($var6);
+        if ($var7 != 0)  $cardList[] = $this->cardNumToText($var7);
+        if ($var8 != 0)  $cardList[] = $this->cardNumToText($var8);
+        if ($var9 != 0)  $cardList[] = $this->cardNumToText($var9);
 
         return $cardList;
     }
