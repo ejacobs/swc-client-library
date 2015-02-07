@@ -1,0 +1,10 @@
+{
+    "autoload": {
+        "psr-0": {
+            "MyApp": "src"
+        }
+    },
+    "require": {
+        "react/react": "0.4.x-dev"
+    }
+}
