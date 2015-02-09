@@ -49,7 +49,8 @@ class Client extends EventEmitter {
 		$connection = new React\Stream\Stream($client, $this->_loop);
 
 		$connection->on('data', function($data) {
-			if ($commandStr = $this->_processBuffer($data)) {
+			$this->_appendBuffer($data);
+			while ($commandStr = $this->_processBuffer()) {
 				$response = $this->_queryToArray($commandStr);
 				if (isset($response['Command'])) {
 					$command = strtolower($response['Command']);
@@ -61,8 +62,9 @@ class Client extends EventEmitter {
 					}
 				}
 				$this->_waitingOnResponse = false;
+				$this->_processCommandQueue();
 			}
-			$this->_processCommandQueue();
+
 		});
 
 		$this->_socket = $connection;
@@ -234,10 +236,12 @@ class Client extends EventEmitter {
     }
 
 
+	private function _appendBuffer($data) {
+		$this->_buffer .= preg_replace('/\0/', END_STR, $data);
+	}
 
     // Used to buffer responses from the server. This is used because sometimes server responses are longer than a single packet
-    private function _processBuffer($data) {
-		$this->_buffer .= preg_replace('/\0/', END_STR, $data);
+    private function _processBuffer() {
         if (strpos($this->_buffer, END_STR) !== false) {
             $lines = explode(END_STR, $this->_buffer);
             $ret = array_shift($lines);
@@ -321,6 +325,10 @@ class Client extends EventEmitter {
 
 		}
 		return $ret;
+	}
+
+	public function debug() {
+		echo "Buffer size: " . strlen($this->_buffer) . "\n";
 	}
 
 }

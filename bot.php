@@ -4,7 +4,7 @@ include('vendor/autoload.php');
 include('config.php');
 
 $loop = React\EventLoop\Factory::create();
-$client = new Client('<username_here>', '<password_here>', $loop);
+$client = new Client('<your_username>', '<your_password>', $loop);
 $client->connect();
 
 
@@ -17,11 +17,11 @@ $client->on('board', function(State_Table $table, $cards) use ($client) {
 	print_r($cards);
 });
 
-/*
+
 $loop->addPeriodicTimer(5, function() use ($client) {
-	// do something every 5 seconds
+	$client->debug();
 });
-*/
+
 
 // Start the web interface
 $web = new Web($loop, $client);
