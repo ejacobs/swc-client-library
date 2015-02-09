@@ -1,19 +1,18 @@
 <?php
 
-class Swc {
+use Evenement\EventEmitter;
+
+class Client extends EventEmitter {
 
     public $username;
     public $serverTime;
-    public $depositAddress;
     public $location;
-    public $title;
-    public $krill;
-    public $chipsTotal;
-    public $chipsInPlay;
-    public $chipsAvailable;
     public $sessionKey;
     public $version;
 
+	private $_loop;
+	private $_commandQueue 		= array();
+	private $_waitingOnResponse = false;
     private $_password;            // Player's password
     private $_buffer;              // Buffer holding server responses until an end character is received
     private $_packetCounter;       // Packet counter that is incremented and sent to the server on each request
@@ -21,9 +20,10 @@ class Swc {
     private $_pcid;                // A random hex identifier to prevent multiple logins
     private $_curlHandle;          // Curl handle to perform the encrypted SSL authentication
     private $_socket;              // Socket handle for sending and receiving commands
+	private $_state;
 
     // Initialize all state variables
-    public function __construct($username, $password) {
+    public function __construct($username, $password, $loop) {
         $this->username = $username;
         $this->_socket = null;
         $this->_buffer = '';
@@ -31,6 +31,8 @@ class Swc {
         $this->_pcid = $this->_randomHex();
         $this->_registerdFunctions = array();
         $this->_password = $password;
+		$this->_loop = $loop;
+		$this->_state = new State($this);
     }
 
     // Exit and close connection
@@ -42,24 +44,39 @@ class Swc {
 
     // Send SSL Curl request with credentials and create socket connection for receiving commands
     public function connect() {
-        if ($this->_socket) socket_close($this->_socket);
-        $address = gethostbyname(SERVICE_URL);
-        $this->_socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
-        $connectionSuccessful = socket_connect($this->_socket, $address, SERVICE_PORT);
-        if ($connectionSuccessful) $this->_liveOutput("Connected to " . SERVICE_URL . " successfully");
-        else $this->_liveOutput("[" . $this->username . "] Problem connecting to " . SERVICE_URL);
+		$address = gethostbyname(SERVICE_URL);
+		$client = stream_socket_client("tcp://{$address}:" . SERVICE_PORT);
+		$connection = new React\Stream\Stream($client, $this->_loop);
+
+		$connection->on('data', function($data) {
+			if ($commandStr = $this->_processBuffer($data)) {
+				$response = $this->_queryToArray($commandStr);
+				if (isset($response['Command'])) {
+					$command = strtolower($response['Command']);
+					if ($command == 'session') {
+						$this->_ID = $response['ID'];
+					}
+					else {
+						$this->getState()->update($command, $response);
+					}
+				}
+				$this->_waitingOnResponse = false;
+			}
+			$this->_processCommandQueue();
+		});
+
+		$this->_socket = $connection;
+
         $curlHandle = curl_init();
         curl_setopt($curlHandle, CURLOPT_HEADER, 0);
         curl_setopt($curlHandle, CURLOPT_USERAGENT, USER_AGENT_STR);
         curl_setopt($curlHandle, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($curlHandle, CURLOPT_SSL_VERIFYHOST, 2);
-        curl_setopt($curlHandle, CURLOPT_CAINFO, getcwd() . DIRECTORY_SEPARATOR . SWC_CERT_FILENAME);
+        //curl_setopt($curlHandle, CURLOPT_CAINFO, getcwd() . DIRECTORY_SEPARATOR . SWC_CERT_FILENAME);
         curl_setopt($curlHandle, CURLOPT_RETURNTRANSFER, true);
         $this->_curlHandle = $curlHandle;
         $this->_getMeaningfulColors($curlHandle);
-        if ($userData = $this->_getSession()) {
-            $this->krill = $userData['krill'];
-            $this->depositAddress = $userData['deposit_address'];
+        if ($this->_getSession()) {
             $this->_sendPolicyRequest();
             $this->_sendSessionInitialization();
             $this->_sendLogin();
@@ -69,13 +86,20 @@ class Swc {
         else return false;
     }
 
-    // Our main loop which is called continuously after connection
-    public function play() {
-        if(!$this->_socket) return false;
-        else return $this->_processInput();
-    }
+	/**
+	 * Return the state object
+	 *
+	 * @return State
+	 */
+	public function getState() {
+		return $this->_state;
+	}
 
-    // Request our chip and kirll balance
+	private function _sendSessionInitialization() {
+		$this->_sendPacket('Response=Session&PC='. $this->_pcid .'&Version=' . $this->version);
+	}
+
+    // Request our chip and krill balance
     public function sendBalanceRequest() {
         $this->_sendPacket('Response=Balance');
     }
@@ -104,9 +128,7 @@ class Swc {
     // Register for a tourney
     public function sendTourneyRegistration($tableName) {
         $this->_sendPacket('Response=RegisterRequest&Table=' . rawurlencode($tableName));
-        $this->_processInput();
         $this->_sendPacket('Response=Register&Seat=0&Type=T&Table=' . rawurlencode($tableName));
-        $this->_processInput();
         return true;
     }
 
@@ -119,8 +141,8 @@ class Swc {
     // Convert the numerical card to the 2 character text representation
     public function cardNumToText($cardNum) {
         $cardTable = array(
-            1 => '2C', 2 => '2D', 3 => '2H', 4 => '2S', 5 => '3C', 6 => '3D', 7 => '3H', 8 => '3S',
-            9 => '4C', 10 => '4D', 11 => '4H', 12 => '4S', 13 => '5C', 14 => '5D', 15 => '5H', 16 => '5S',
+            1  => '2C', 2  => '2D', 3  => '2H', 4  => '2S', 5  => '3C', 6  => '3D', 7  => '3H', 8  => '3S',
+            9  => '4C', 10 => '4D', 11 => '4H', 12 => '4S', 13 => '5C', 14 => '5D', 15 => '5H', 16 => '5S',
             17 => '6C', 18 => '6D', 19 => '6H', 20 => '6S', 21 => '7C', 22 => '7D', 23 => '7H', 24 => '7S',
             25 => '8C', 26 => '8D', 27 => '8H', 28 => '8S', 29 => '9C', 30 => '9D', 31 => '9H', 32 => '9S',
             33 => 'TC', 34 => 'TD', 35 => 'TH', 36 => 'TS', 37 => 'JC', 38 => 'JD', 39 => 'JH', 40 => 'JS',
@@ -158,8 +180,6 @@ class Swc {
         return $cardList;
     }
 
-
-
     
     
     // Convert a hex value to the string equivalent
@@ -188,13 +208,6 @@ class Swc {
         }
     }
 
-    // Send the command to intialize the session
-    private function _sendSessionInitialization() {
-        $this->_sendPacket('Response=Session&PC='. $this->_pcid .'&Version=' . $this->version);
-        $response = $this->_recv();
-        parse_str($response, $responseArray);
-        $this->_ID = $responseArray['ID'];
-    }
 
     // Send the command to login along with the session key
     private function _sendLogin() {
@@ -211,44 +224,27 @@ class Swc {
         );
         $response = $this->_curlPost(GET_SESSION_URL, $fields);
         $json = json_decode($response, true);
+		//print_r($json); die;
         $this->sessionKey = $json['MavensKey'];
         $this->version = $json['Version'];
         $this->serverTime = $json['ServerTime'];
-        return array(
-            'deposit_address' => $json['DepositAddress'],
-            'krill' => $json['Krill'],
-        );
-    }
-
-    // Process input
-    private function _processInput() {
-        $fullCommand = $this->_processBuffer();
-        if (strpos($fullCommand, 'Command') !== false) {
-            parse_str($fullCommand, $responseArr);
-            if (isset($responseArr['Command'])) {
-                $command = $responseArr['Command'];
-                if ($command == 'Session') $this->_ID = $responseArr['ID'];
-                else return $responseArr;
-            }
-        }
+		$this->getState()->setDepositAddress($json['DepositAddress']);
+		$this->getState()->setKrill($json['Krill']);
         return true;
     }
 
+
+
     // Used to buffer responses from the server. This is used because sometimes server responses are longer than a single packet
-    private function _processBuffer() {
+    private function _processBuffer($data) {
+		$this->_buffer .= preg_replace('/\0/', END_STR, $data);
         if (strpos($this->_buffer, END_STR) !== false) {
             $lines = explode(END_STR, $this->_buffer);
             $ret = array_shift($lines);
             $this->_buffer = implode(END_STR, $lines);
             return $ret;
         }
-        else {
-            if ($response = $this->_recv(32768)) {
-                $moddedResponse = preg_replace('/\0/', END_STR, $response);
-                $this->_buffer .= $moddedResponse;
-            }
-            return false;
-        }
+		else return null;
     }
 
     // Mimic the request for the meaningful colors script from the official client
@@ -278,33 +274,53 @@ class Swc {
 
     // Send a packet and append ID and packet number
     private function _sendPacket($data) {
-        if ($this->_ID) $data .= '&ID=' . $this->_ID;
-        $data .= '&PNum=' . $this->_packetCounter;
-        $data .= $this->_hex2str('00');
-        $this->_sendRawPacket($data);
-        $this->_packetCounter++;
+		$this->_commandQueue[] = $data;
+		$this->_processCommandQueue($data);
     }
+
+	private function _processCommandQueue() {
+		if (!$this->_waitingOnResponse) {
+			if ($data = array_shift($this->_commandQueue)) {
+				if ($this->_ID) $data .= '&ID=' . $this->_ID;
+				$data .= '&PNum=' . $this->_packetCounter;
+				$data .= $this->_hex2str('00');
+				$this->_sendRawPacket($data);
+				$this->_packetCounter++;
+				$this->_waitingOnResponse = true;
+			}
+		}
+	}
 
     // send a packet without appending anything
     private function _sendRawPacket($data) {
-        socket_write($this->_socket, $data, strlen($data));
-    }
-
-    // Receive data on the socket
-    private function _recv() {
-        return socket_read($this->_socket, 32768);
+		$this->_socket->write($data);
     }
 
     // Mimic the policy request sent by the official client
     private function _sendPolicyRequest() {
         if ($this->_socket) {
             $this->_sendRawPacket("<policy-file-request/>" . $this->_hex2str('00'));;
-            $this->_recv();
+            $this->_waitingOnResponse = true;
         }
         else die('no connection');
     }
 
+	/**
+	 * Parse query string into $key => $value array
+	 *
+	 * @param $query String
+	 * @return Array
+	 */
+	private function _queryToArray($query) {
+		$keyVals = explode('&', $query);
+		$ret = array();
+		foreach ($keyVals as $keyVal) {
+			$parts = explode('=', $keyVal);
+			if (count($parts) == 2) $ret[$parts[0]] = $parts[1];
+			else $ret[$parts[0]] = '';
+
+		}
+		return $ret;
+	}
+
 }
-
-
-?>

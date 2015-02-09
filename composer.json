@@ -1,10 +1,11 @@
 {
     "autoload": {
         "psr-0": {
-            "MyApp": "src"
+            "": "src/"
         }
     },
     "require": {
-        "react/react": "0.4.x-dev"
+        "react/react": "0.4.x-dev",
+        "ext-curl": "*"
     }
 }

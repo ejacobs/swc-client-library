@@ -1,30 +1,31 @@
 <?php
 
+include('vendor/autoload.php');
 include('config.php');
-include('Swc.php');
 
-$client = new Swc(SWC_USERNAME, SWC_PASSWORD);
-
+$loop = React\EventLoop\Factory::create();
+$client = new Client('<username_here>', '<password_here>', $loop);
 $client->connect();
 
-while ($response = $client->play()) {
-    if (is_array($response)) {
 
-        // See README.md for a full list of responses
-        $command = $response['Command'];
+$client->on('lobbychat', function($player, $text, $time) use ($client) {
+	echo "{$time} {$player}: {$text}\n";
+});
 
-        if ($command == 'LobbyChat') {
-            echo "{$response['Player']}: {$response['Text']}\n";
-            if ($response['Text'] == 'are you a bot?') {
-                $client->sendLobbyChat('Yes, I am a Bot!');
-            }
-        }
+$client->on('board', function(State_Table $table, $cards) use ($client) {
+	echo $table->getTableId() . "\n";
+	print_r($cards);
+});
 
-    }
-    usleep(SLEEP_MILLISECONDS);
-}
+/*
+$loop->addPeriodicTimer(5, function() use ($client) {
+	// do something every 5 seconds
+});
+*/
 
+// Start the web interface
+$web = new Web($loop, $client);
 
-
+$loop->run();
 
 ?>
