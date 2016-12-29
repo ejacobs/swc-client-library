@@ -27,5 +27,3 @@ $loop->addPeriodicTimer(5, function() use ($client) {
 $web = new Web($loop, $client);
 
 $loop->run();
-
-?>

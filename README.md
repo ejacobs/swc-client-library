@@ -20,12 +20,6 @@ Requirements
 
 
 
-Why write a long-running socket based script in a language designed for displaying webpages?
-------------------------------------
-There is no good answer to this question.
-
-
-
 Server Response Commands Reference
 ------------------------------------
 
